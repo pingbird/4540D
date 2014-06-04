@@ -67,6 +67,13 @@ void forwardDirect(int pow) {
 	motor[top_right]=pow;
 }
 
+void backwardDirect(int pow) {
+	motor[bottom_left]=pow;
+	motor[top_left]=pow;
+	motor[bottom_right]=pow;
+	motor[top_right]=pow;
+}
+
 void rightDirect(int pow) {
 	motor[bottom_left]=pow;
 	motor[top_left]=pow;

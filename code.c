@@ -26,8 +26,8 @@ int mod(int n,int d) {
 	return result>=0?result:result+d;
 }
 
-#include "autonSelect.c"
 #include "movement.c"
+#include "autonSelect.c"
 #include "auton.c"
 
 void pre_auton() {
@@ -38,8 +38,9 @@ task usercontrol() {
 	while (true) {
 		motor[bottom_left]=vexRT[Ch3];
 		motor[top_left]=vexRT[Ch3];
-		motor[bottom_right]=-vexRT[Ch2];
-		motor[top_right]=-vexRT[Ch2];
+		motor[bottom_right]=vexRT[Ch2];
+		motor[top_right]=vexRT[Ch2];
+		motor[side_wheel]=(vexRT[Btn8L]*127)|(vexRT[Btn8R]*-127);
 	}
 }
 
