@@ -7,7 +7,7 @@ int autonSel=1;
 
 // returns bitmap of controller buttons
 int ctrlButtons() {
-	return (vexRT[Btn8R]<<2)|((vexRT[Btn8D]|vexRT[Btn8U])<<1)|vexRT[Btn8L];
+	return (vexRT[Btn7R]<<2)|((vexRT[Btn7D]|vexRT[Btn7U])<<1)|vexRT[Btn7L];
 }
 
 int lastBt=0;
@@ -18,7 +18,7 @@ int getLCDButton() {
 	// while buttons are in their last state
 	while (curBt==lastBt) {
 		curBt=nLCDButtons|ctrlButtons();
-		wait1Msec(50); // give time to other threads
+		wait1Msec(50);
 	}
 	lastBt=curBt;
 	switch (curBt) {
@@ -33,8 +33,7 @@ int getLCDButton() {
 	}
 }
 
-void autonSelect() {
-	bLCDBacklight=true;
+task autonSelect() {
 	while (true) {
 		char top[16];
 		char selFmt[19];
@@ -48,20 +47,27 @@ void autonSelect() {
 				sprintf(battery,"4540D  %i.%iV",nImmediateBatteryLevel/1000,(nImmediateBatteryLevel%1000)/10);
 				strcpy(top,battery);
 			}
-			snprintf(selFmt,16,"%%sSkills%%sRed%%sBlue");
+			sprintf(selFmt,"%%sSkills%%sRed%%sBlue");
 		}
-		if (autonMenu>0) {
-			// add color to top
-			strcpy(top,autonColor==0?"Red ":"Blue ");
-		}
+		int mode1;
+		int mode2;
 		if (autonMenu==1) {
 			// Back | Left | Right menu
-			snprintf(selFmt,16,"%%sBack%%sLeft%%sRight");
+			sprintf(selFmt,"%%sBack%%sLeft%%sRight");
+			strcpy(top,autonColor==0?"Red ":"Blue ");
 		} else if (autonMenu==2) {
 			// Back | 1 | 2 menu
-			strcat(top,autonSide==0?"Left":"Right");
-			strcat(top,autonMode==0?" 1":" 2");
-			snprintf(selFmt,16,"%%sBack%%s1%%s2");
+			mode1=autonMode>0?1:2;
+			mode2=autonMode<2?3:2;
+			sprintf(selFmt,"%%sBack%%s%d%%s%d",
+				mode1,
+				mode2
+			);
+			sprintf(top,"%s %s %d",
+				autonColor==0?"Red":"Blue",
+				autonSide==0?"Left":"Right",
+				autonMode+1
+			);
 		}
 		// display top
 		clearLCDLine(0);
@@ -106,9 +112,13 @@ void autonSelect() {
 			}
 			break;
 		case 2:
-			// Back | 1 | 2 menu
+			// Back | 1 | 2 | 3 menu
 			if (autonSel>0) {
-				autonMode=autonSel-1;
+				if (autonSel==1) {
+					autonMode=mode1-1;
+				} else {
+					autonMode=mode2-1;
+				}
 				autonMenu=1;
 			}
 			break;
@@ -123,3 +133,4 @@ void autonSelect() {
 		}
 	}
 }
+
