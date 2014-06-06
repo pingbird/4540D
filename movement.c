@@ -25,10 +25,10 @@ void encoderRun(float mult) {
 
 void encoderStop() {
 	// reverse wheels to stop momentum
-	motor[bottom_left]=l*-64;
-	motor[top_left]=l*-64;
-	motor[bottom_right]=r*-64;
-	motor[top_right]=r*-64;
+	motor[bottom_left]=l*-32;
+	motor[top_left]=l*-32;
+	motor[bottom_right]=r*-32;
+	motor[top_right]=r*-32;
 	wait1Msec(40);
 	motor[bottom_left]=0;
 	motor[top_left]=0;
@@ -49,13 +49,14 @@ void encoder(float dist,int sl,int sr) {
 	float rdist=0;
 	while (rdist<dist) {
 		rdist=((getMotorEncoder(bottom_left)/l)+(getMotorEncoder(bottom_right)/r))/2;
-		encoderRun(range((dist-rdist)/500,0.2,1)); // slow when it is close to stopping
+		encoderRun(range(((dist-100)-rdist)/200,0.1,1)); // slow when it is close to stopping
 	}
 	encoderStop();
 	// see how much it was off, should not be greater than -/+20 for turns
-	encoderMaxOff=max(dist-(((getMotorEncoder(bottom_left)/l)+(getMotorEncoder(bottom_right)/r))/2),encoderMaxOff);
+	int curOff=dist-(((getMotorEncoder(bottom_left)/l)+(getMotorEncoder(bottom_right)/r))/2);
+	encoderMaxOff=max(abs(curOff),encoderMaxOff);
 	char line[16];
-	snprintf(line,16,"Off: %d",encoderMaxOff);
+	snprintf(line,16,"O: %d M: %d",curOff,encoderMaxOff);
 	clearLCDLine(1);
 	displayLCDCenteredString(1,line);
 }

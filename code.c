@@ -31,14 +31,22 @@ int mod(int n,int d) {
 #include "auton.c"
 #include "userControl.c"
 
-void pre_auton() {
+void pre_auton() {	
+	/*while (true) {
+		motor[side_wheel]=vexRT[AccelX];
+		forwardDirect(-vexRT[AccelY]);
+	}*/
 	bLCDBacklight=true;
 	while (true) {
 		startTask(autonSelect);
 		wait1Msec(500);
 		while (!(vexRT[Btn7L] && vexRT[Btn7R])) {
+			if (vexRT[Btn8U]) {
+				startTask(autonomous);
+			}
 			wait1Msec(100);
 		}
+		stopTask(autonomous);
 		stopTask(autonSelect);
 		startTask(usercontrol);
 		wait1Msec(500);

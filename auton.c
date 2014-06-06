@@ -1,8 +1,9 @@
 void autonTest() {
-	forward(500);
-	backward(500);
+	turnRight(180);
+	turnLeft(180);
 }
 
 task autonomous() {
+	printAutonMode();
 	autonTest();
 }

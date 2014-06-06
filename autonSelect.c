@@ -33,6 +33,17 @@ int getLCDButton() {
 	}
 }
 
+void printAutonMode() {
+	char top[16];
+	sprintf(top,"%s %s %d",
+		autonColor==0?"Red":"Blue",
+		autonSide==0?"Left":"Right",
+		autonMode+1
+	);
+	clearLCDLine(0);
+	displayLCDCenteredString(0,top);
+}
+
 task autonSelect() {
 	while (true) {
 		char top[16];
