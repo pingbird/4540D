@@ -37,6 +37,7 @@ task usercontrol() {
 				motor[top_right]=fwd-turn;
 			break;
 		}
+		motor[port1]=(vexRT[Btn7L]*-127)|(vexRT[Btn7R]*127);
 		wait1Msec(50);
 	}
 }

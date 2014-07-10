@@ -1,3 +1,5 @@
+#pragma config(UART_Usage, UART1, uartVEXLCD, baudRate19200, IOPins, None, None)
+#pragma config(UART_Usage, UART2, uartNotUsed, baudRate4800, IOPins, None, None)
 #pragma config(Sensor, dgtl1,  ,               sensorQuadEncoder)
 #pragma config(Sensor, dgtl8,  ,               sensorQuadEncoder)
 #pragma config(Motor,  port4,           bottom_left,   tmotorVex393_MC29, openLoop, encoderPort, dgtl1)
@@ -14,8 +16,6 @@
 #include "Vex_Competition_Includes.c"
 
 // this file is seperate so i can open it in np++
-
-#include "code.c"
 
 //   drive train:
 //     [5] [7]
@@ -52,10 +52,16 @@
 //     8 ) right encoder (top wire)
 //     9 ) right encoder (bottom wire)
 //     10)
-//     11)
-//     12)
+//     11) ultrasonic (input)
+//     12) ultrasonic (output)
 //   UART:
 //     1)
 //     2) LCD display
 //   I2C:
 //
+
+#define uint32_t unsigned int
+
+#include "sha256.c"
+
+#include "code.c"

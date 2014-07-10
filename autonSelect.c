@@ -55,7 +55,11 @@ task autonSelect() {
 			} else {
 				// show battery info if the selected auton isnt skills
 				char battery[16];
-				sprintf(battery,"4540D  %i.%iV",nImmediateBatteryLevel/1000,(nImmediateBatteryLevel%1000)/10);
+				if (nImmediateBatteryLevel==0) {
+					sprintf(battery,"4540D  %i.%i!",BackupBatteryLevel/1000,(BackupBatteryLevel%1000)/10);
+				} else {
+					sprintf(battery,"4540D  %i.%iV",nImmediateBatteryLevel/1000,(nImmediateBatteryLevel%1000)/10);
+				}
 				strcpy(top,battery);
 			}
 			sprintf(selFmt,"%%sSkills%%sRed%%sBlue");

@@ -31,7 +31,7 @@ int mod(int n,int d) {
 #include "auton.c"
 #include "userControl.c"
 
-void pre_auton() {	
+void pre_auton() {
 	/*while (true) {
 		motor[side_wheel]=vexRT[AccelX];
 		forwardDirect(-vexRT[AccelY]);
@@ -47,6 +47,8 @@ void pre_auton() {
 			wait1Msec(100);
 		}
 		stopTask(autonomous);
+		stopDirect();
+		motor[side_wheel]=0;
 		stopTask(autonSelect);
 		startTask(usercontrol);
 		wait1Msec(500);
