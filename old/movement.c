@@ -49,8 +49,7 @@ void encoder(float dist,int sl,int sr) {
 	float rdist=0;
 	while (rdist<dist) {
 		rdist=((getMotorEncoder(bottom_left)/l)+(getMotorEncoder(bottom_right)/r))/2;
-		
-		encoderRun(max(((dist-100)-rdist)/200,0.3)); // slow when it is close to stopping
+		encoderRun(range(((dist-100)-rdist)/200,0.1,1)); // slow when it is close to stopping
 	}
 	encoderStop();
 	// see how much it was off, should not be greater than -/+20 for turns
@@ -106,9 +105,9 @@ void backward(float dist) {
 }
 
 void turnRight(float deg) {
-	encoder(3.9*deg,1,-1);
+	encoder(3.55*deg,1,-1);
 }
 
 void turnLeft(float deg) {
-	encoder(3.9*deg,-1,1);
+	encoder(3.55*deg,-1,1);
 }

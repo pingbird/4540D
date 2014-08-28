@@ -42,11 +42,11 @@ void pre_auton() {
 		wait1Msec(500);
 		while (!(vexRT[Btn7L] && vexRT[Btn7R])) {
 			if (vexRT[Btn8U]) {
-				startTask(autonomous);
+				// startTask(autonomous);
 			}
 			wait1Msec(100);
 		}
-		stopTask(autonomous);
+		// stopTask(autonomous);
 		stopDirect();
 		motor[side_wheel]=0;
 		stopTask(autonSelect);
@@ -57,5 +57,5 @@ void pre_auton() {
 		}
 		stopTask(usercontrol);
 	}
+	startTask(usercontrol);
 }
-

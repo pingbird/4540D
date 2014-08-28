@@ -90,7 +90,7 @@ void motortest() {
 				cport=mod(cport+(bt==1?-1:1),10);
 				render();
 			} else {
-				cspeed=range(cspeed+(bt==1?-31.75:31.75),-127,127);
+				cspeed=range(cspeed+(bt==1?-63.5:63.5),-127,127);
 				render();
 			}
 			motor[cport]=cspeed;
