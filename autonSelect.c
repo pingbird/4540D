@@ -4,9 +4,13 @@ int autonMode=0;
 
 int autonMenu=0;
 int autonSel=1;
+int menuUseRT=1;
 
 // returns bitmap of controller buttons
 int ctrlButtons() {
+	if (!menuUseRT) {
+		return 0;
+	}
 	return (vexRT[Btn7R]<<2)|((vexRT[Btn7D]|vexRT[Btn7U])<<1)|vexRT[Btn7L];
 }
 
@@ -29,7 +33,7 @@ int getLCDButton() {
 		case 4:
 			return 3; // right pressed
 		default:
-			return 0; // none or multiple pressed
+			return 0; // none
 	}
 }
 
@@ -45,6 +49,7 @@ void printAutonMode() {
 }
 
 task autonSelect() {
+	bLCDBacklight=true;
 	while (true) {
 		char top[16];
 		char selFmt[19];
@@ -148,4 +153,3 @@ task autonSelect() {
 		}
 	}
 }
-
