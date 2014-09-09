@@ -1,4 +1,4 @@
-float smooth=3; // degrees off to ajustment ratio
+float smooth=2; // degrees off to ajustment ratio
 float l;
 float r;
 float cm_ratio=1; // cm to encoder value ratio, havent measured yet
@@ -44,6 +44,10 @@ int encoderMaxOff=0;
 void encoder(float dist,int sl,int sr) {
 	if (dist<0) {
 		dist=-dist;
+		sl=-sl;
+		sr=-sr;
+	}
+	if (autonColor) {
 		sl=-sl;
 		sr=-sr;
 	}

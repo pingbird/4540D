@@ -1,4 +1,5 @@
-#pragma config(Sensor, in1,    pot,            sensorNone)
+#pragma config(Sensor, in1,    pot_arm,        sensorPotentiometer)
+#pragma config(Sensor, in2,    pot_claw,       sensorPotentiometer)
 #pragma config(Sensor, dgtl1,  ,               sensorQuadEncoder)
 #pragma config(Sensor, dgtl3,  ,               sensorQuadEncoder)
 #pragma config(Motor,  port1,           arm_right,     tmotorVex393_HBridge, openLoop)
@@ -47,11 +48,15 @@ int mod(int n,int d) {
 	return result>=0?result:result+d;
 }
 
-#include "movement.c"
 #include "autonSelect.c"
+#include "movement.c"
+task armControl;
 
 void pre_auton()
 {
+	stopTask(autonomous);
+	stopTask(usercontrol);
+	stopTask(armControl);
 	menuUseRT=true;
 	startTask(autonSelect);
 	startTask(usercontrol);
@@ -62,21 +67,15 @@ void armDirect(int pow) {
 	motor[arm_right]=pow;
 };
 
-void armUp(float time) {
-	motor[arm_left]=127;
-	motor[arm_right]=127;
-	wait1Msec(time*1000);
-	motor[arm_left]=0;
-	motor[arm_right]=0;
+void setClaw(int l) {
+	while (SensorValue[pot_claw]/50!=l/50) {
+		motor[claw_tilt]=range(SensorValue[pot_claw]-l,-127,127);
+	}
 }
 
-void armDown(float time) {
-	motor[arm_left]=-127;
-	motor[arm_right]=-127;
-	wait1Msec(time*1000);
-	motor[arm_left]=0;
-	motor[arm_right]=0;
-}
+#define clawUp() setClaw(1241)
+#define clawMiddle() setClaw(2755)
+#define clawDown() setClaw(3552)
 
 void slideUp(float time) {
 	motor[claw_slide]=127;
@@ -88,18 +87,6 @@ void slideDown(float time) {
 	motor[claw_slide]=-127;
 	wait1Msec(time*1000);
 	motor[claw_slide]=0;
-}
-
-void clawUp(float time) {
-	motor[claw_tilt]=127;
-	wait1Msec(time*1000);
-	motor[claw_tilt]=0;
-}
-
-void clawDown(float time) {
-	motor[claw_tilt]=-127;
-	wait1Msec(time*1000);
-	motor[claw_tilt]=0;
 }
 
 void clawGrab() {
@@ -127,40 +114,78 @@ int getBtn(int btn) {
 	return 0;
 }
 
+int armhold=0;
+int arm=0;
+int doarmhold=0;
+task armControl() {
+	armhold=0;
+	arm=0;
+	doarmhold=0;
+	while (true) {
+		if (doarmhold && armhold!=0) {
+			arm=SensorValue[pot_arm]>4000?0:(SensorValue[pot_arm]-armhold)/20;
+		}
+		motor[arm_left]=arm;
+		motor[arm_right]=arm;
+		wait1Msec(50);
+	}
+}
+
+void setArm(int l) {
+	doarmhold=0;
+	arm=range(SensorValue[pot_arm]-l,-127,127);
+	while (SensorValue[pot_arm]/100!=l/100) {
+		wait1Msec(50);
+	}
+	armhold=l;
+	doarmhold=1;
+}
+
 task autonomous() {
-	menuUseRT=0;
-	forward(1000);
+	doarmhold=1;
+	startTask(armControl);
+	stopTask(usercontrol);
+	switch (autonMode) {
+		case 0:
+			setArm(1853);
+		break;
+		case 1:
+			setArm(2822);
+		break;
+		case 2:
+			setArm(3830);
+		break;
+	}
 }
 
 int autonStarted=0;
 
 int lastl=0;
 #define getBtns(a,b) ((vexRT[a]*-127)+(vexRT[b]*127))
-int armhold=0;
 int mode=0;
 float clawslow=1;
 task usercontrol() {
+	startTask(armControl);
 	menuUseRT=0;
 	startTask(autonSelect);
 	while (true) {
-		writeDebugStreamLine("arm %i",SensorValue[pot]);
 		if ((!lastl)&&vexRT[Btn7R]!=lastl) {
 			mode=!mode;
 		}
 		lastl=vexRT[Btn7R];
-		int arm=getBtns(Btn5D,Btn5U);
+		arm=getBtns(Btn5D,Btn5U);
 		if (arm!=0) {
-			armhold=SensorValue[pot];
-		} else if (armhold!=0) {
-			arm=SensorValue[pot]>4000?0:(SensorValue[pot]-armhold)/20;
+			armhold=SensorValue[pot_arm];
 		}
-		motor[arm_left]=arm;
-		motor[arm_right]=arm;
+		doarmhold=arm==0;
 		if (getBtns(Btn6D,Btn6U)==0) {
 			clawslow=1;
 		} else {
-			clawslow=clawslow*0.98;
+			clawslow=clawslow*0.93;
 		}
+		char top[16];
+		snprintf(top,16,"%i",SensorValue[pot_claw]);
+		displayLCDCenteredString(0,top);
 		motor[claw_grab]=getBtns(Btn6D,Btn6U)*clawslow;
 		motor[claw_tilt]=getBtns(Btn8D,Btn8U);
 		motor[claw_slide]=getBtns(Btn7D,Btn7U);
