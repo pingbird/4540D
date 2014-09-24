@@ -16,7 +16,7 @@ task main()
 	wait1Msec(2000);
 
 	pre_auton();
-	
+
 	while (true) {
 		while (bIfiRobotDisabled) {
 			wait1Msec(25);
@@ -31,6 +31,7 @@ task main()
 				}
 				wait1Msec(25);
 			}
+			stopTask(autonomous);
 			allMotorsOff();
 		} else {
 			startTask(usercontrol);
@@ -40,6 +41,7 @@ task main()
 				}
 				wait1Msec(25);
 			}
+			stopTask(usercontrol);
 			allMotorsOff();
 		}
 	}

@@ -2,6 +2,7 @@
 #pragma config(Sensor, in2,    pot_claw,       sensorPotentiometer)
 #pragma config(Sensor, dgtl1,  ,               sensorQuadEncoder)
 #pragma config(Sensor, dgtl3,  ,               sensorQuadEncoder)
+#pragma config(Sensor, dgtl11, uls_1,          sensorSONAR_cm)
 #pragma config(Motor,  port1,           arm_right,     tmotorVex393_HBridge, openLoop)
 #pragma config(Motor,  port2,           top_left,      tmotorVex269_MC29, openLoop)
 #pragma config(Motor,  port3,           claw_grab,     tmotorVex393_MC29, openLoop, reversed)
@@ -73,8 +74,8 @@ void setClaw(int l) {
 	}
 }
 
-#define clawUp() setClaw(1241)
-#define clawMiddle() setClaw(2755)
+#define clawUp() setClaw(2241)
+#define clawMiddle() setClaw(2855)
 #define clawDown() setClaw(3552)
 
 void slideUp(float time) {
@@ -91,13 +92,17 @@ void slideDown(float time) {
 
 void clawGrab() {
 	motor[claw_grab]=127;
-	wait1Msec(1000);
+	wait1Msec(800);
+	motor[claw_grab]=32;
+	wait1Msec(200);
 	motor[claw_grab]=0;
 }
 
 void clawRelease() {
 	motor[claw_grab]=-127;
-	wait1Msec(1000);
+	wait1Msec(800);
+	motor[claw_grab]=-32;
+	wait1Msec(200);
 	motor[claw_grab]=0;
 }
 
@@ -147,18 +152,52 @@ task autonomous() {
 	stopTask(usercontrol);
 	switch (autonMode) {
 		case 0:
-			setArm(1853);
+			backward(200);
+			setArm(2900);
+			clawMiddle();
+			clawRelease();
+			forward(150);
+			motor[claw_grab]=127;
+			slideUp(1.5);
+			motor[claw_grab]=0;
+			slideUp(2);
+			turnLeft(20);
+			clawUp();
+			setArm(3830);
+			leftDirect(32);
+			while (SensorValue[uls_1]>35) wait1Msec(50);
+			stopDirect();
+			forwardDirect(127);
+			wait1Msec(900);
+			stopDirect();
+			backward(180);
+			clawMiddle();
+			slideDown(1);
+			clawRelease();
+			backward(100);
 		break;
 		case 1:
-			setArm(2822);
+			clawDown();
+			clawGrab();
+			forward(200);
+			clawMiddle();
+			turnRight(180);
+			clawDown();
+			backward(200);
 		break;
 		case 2:
-			setArm(3830);
-		break;
+			backward(300);
+			clawDown();
+			clawGrab();
+			forward(400);
+			clawUp();
+			setArm(2000);
+			turnRight(70);
+			backward(100);
+			clawMiddle();
+			backward(500);
 	}
 }
-
-int autonStarted=0;
 
 int lastl=0;
 #define getBtns(a,b) ((vexRT[a]*-127)+(vexRT[b]*127))
@@ -184,7 +223,7 @@ task usercontrol() {
 			clawslow=clawslow*0.93;
 		}
 		char top[16];
-		snprintf(top,16,"%i",SensorValue[pot_claw]);
+		snprintf(top,16,"%i",SensorValue[pot_arm]);
 		displayLCDCenteredString(0,top);
 		motor[claw_grab]=getBtns(Btn6D,Btn6U)*clawslow;
 		motor[claw_tilt]=getBtns(Btn8D,Btn8U);
@@ -209,12 +248,6 @@ task usercontrol() {
 				motor[bottom_right]=fwd-turn;
 				motor[top_right]=fwd-turn;
 			break;
-		}
-		if (vexRT[Btn7L] && !autonStarted) {
-			autonStarted=1;
-			forward(1000);
-			//turnRight(90);
-			autonStarted=0;
 		}
 		for (int i=0;i<9;i++) {
 			if (abs(motor[i])<15) {

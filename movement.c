@@ -48,8 +48,9 @@ void encoder(float dist,int sl,int sr) {
 		sr=-sr;
 	}
 	if (autonColor) {
-		sl=-sl;
-		sr=-sr;
+		int t=sl;
+		sl=sr;
+		sr=t;
 	}
 	encoderStart(sl,sr);
 	float rdist=0;
